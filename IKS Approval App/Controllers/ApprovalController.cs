@@ -20,6 +20,7 @@ namespace IKS_Approval_App.Controllers
         }
 
         // GET api/approval
+        [ActionName("list")]
         public List<Approval> Get()
         {
             ApprovalService service = new ApprovalService();
@@ -37,15 +38,16 @@ namespace IKS_Approval_App.Controllers
         }
 
         // GET api/approval/5
-        public string Get(int id)
+        [ActionName("list")]
+        public Approval Get(int id)
         {
-            return "value";
+            ApprovalService service = new ApprovalService();
+            return service.GetApprovalsById(id);
         }
 
-        // POST api/approval
+ 
         [HttpPost]
-        /*[FromBody]
-        Approval value*/
+        [ActionName("add")]
         public int Post()
         {
 

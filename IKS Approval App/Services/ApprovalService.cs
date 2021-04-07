@@ -13,20 +13,12 @@ namespace IKS_Approval_App.Services
     public class ApprovalService : BaseService
     {
 
-        public ApprovalService()
-        {
-
-
-        }
-
         public List<HomeDto> GetAllApprovalTitle()
         {
-            
             List<HomeDto> title = new List<HomeDto>();
             var data = GetApprovals();
             data.ForEach((a) =>
             {
-                
                 HomeDto dto = new HomeDto();
                 dto.ApprovalId = a.ApprovalId;
                 dto.Title = a.Title;
@@ -34,16 +26,18 @@ namespace IKS_Approval_App.Services
 
             });
             return title;
-
-
-
         }
 
+        public Approval GetApprovalsById(int id)
+        {
+            var queryableData = GetApprovals().AsQueryable().Where(a => a.ApprovalId == id);
+            return queryableData.FirstOrDefault();
+        }
 
         public List<Approval> GetApprovals()
         {
             List<Approval> list = new List<Approval>();
-            List<Recipient> recipients = new List<Recipient>();
+           
             var dataTable = ApprovalDB.ExecuteDataTable("CALL GetAll();");
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
@@ -64,7 +58,7 @@ namespace IKS_Approval_App.Services
                     approval.Comment = (string)dr["comments"];
                     Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_name"].ToString(), dr["comments"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
-
+                    List<Recipient> recipients = new List<Recipient>();
                     recipients.Add(r);
                     approval.Recipient = recipients;
                     List<Attachment> attachments = new List<Attachment>();
@@ -76,6 +70,9 @@ namespace IKS_Approval_App.Services
             }
             return list;
         }
+
+
+
 
         public int CreateApproval(Approval approval)
         {
