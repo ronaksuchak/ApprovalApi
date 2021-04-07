@@ -41,6 +41,10 @@ namespace IKS_Approval_App.Models
         public List<Attachment> Attachment { get; set; }
         public List<Recipient> Recipient { get; set; }
 
+        public Approval()
+        {
+        }
+
         public Approval(int approvalId, string title, string description, string senderName, string senderEmail, string releaseDate, string dueDate, string dueTime, string comment, Status status, Type type, List<Attachment> attachment, List<Recipient> recipient)
         {
             ApprovalId = approvalId;

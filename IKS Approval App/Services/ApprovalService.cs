@@ -26,6 +26,8 @@ namespace IKS_Approval_App.Services
             var dataTable = ApprovalDB.ExecuteDataTable("CALL GetAll();");
             if(dataTable != null && dataTable.Rows.Count > 0)
             {
+                Approval a = new Approval();
+
                 foreach(DataRow dr in dataTable.Rows)
                 {
                     
