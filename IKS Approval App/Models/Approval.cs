@@ -57,5 +57,11 @@ namespace IKS_Approval_App.Models
             Attachment = attachment;
             Recipient = recipient;
         }
+        
+
+        public Approval()
+        {
+
+        }
     }
 }

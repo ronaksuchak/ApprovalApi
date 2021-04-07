@@ -19,16 +19,31 @@ namespace IKS_Approval_App.Services
 
         }
 
-        public List<Approval> GetAllApprovals()
+        public List<Approval> GetAllApprovalTitle()
         {
-            List<Approval> list = new List<Approval>();
 
+            List<Approval> list = new List<Approval>();
+            List<Recipient> recipients = new List<Recipient>();
             var dataTable = ApprovalDB.ExecuteDataTable("CALL GetAll();");
             if(dataTable != null && dataTable.Rows.Count > 0)
             {
-                foreach(DataRow dr in dataTable.Rows)
+                
+                Approval approval = new Approval();
+                Recipient recipient = new Recipient();
+
+                foreach (DataRow dr in dataTable.Rows)
                 {
+                    approval.ApprovalId = (int)dr["approval_id"];
+                    approval.Title = (string)dr["approval_name"];
+                    approval.SenderName = (string)dr["sender_name"];
+                    approval.SenderEmail = (string)dr["sender_email"];
+                    approval.ReleaseDate = (string)dr["release_date"];
+                    approval.DueDate = (string)dr["due_date"];
+                    approval.Status = (string)dr["status"];
+                    approval.Comment = (string)dr["comment"];
+                    approval.Attachment = (string)dr["attachment_url"];
                     
+                    list.Add(approval);
                 }
             }
             return list;

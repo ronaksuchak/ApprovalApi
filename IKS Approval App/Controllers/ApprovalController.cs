@@ -23,8 +23,8 @@ namespace IKS_Approval_App.Controllers
         public IEnumerable<string> Get()
         {
             ApprovalService service = new ApprovalService();
-            return service.GetAllApprovals();
-
+            //return service.GetAllApprovals();
+            return null;
         }
 
         // GET api/approval/5
