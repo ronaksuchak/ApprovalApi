@@ -19,34 +19,62 @@ namespace IKS_Approval_App.Services
 
         }
 
-        public List<Approval> GetAllApprovals()
+        public List<HomeDto> GetAllApprovalTitle()
+        {
+            
+            List<HomeDto> title = new List<HomeDto>();
+            var data = GetApprovals();
+            data.ForEach((a) =>
+            {
+                
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = a.ApprovalId;
+                dto.Title = a.Title;
+                title.Add(dto);
+
+            });
+            return title;
+
+
+
+        }
+
+
+        public List<Approval> GetApprovals()
         {
             List<Approval> list = new List<Approval>();
-
+            List<Recipient> recipients = new List<Recipient>();
             var dataTable = ApprovalDB.ExecuteDataTable("CALL GetAll();");
-            if(dataTable != null && dataTable.Rows.Count > 0)
+            if (dataTable != null && dataTable.Rows.Count > 0)
             {
-                Approval a = new Approval();
 
-                foreach(DataRow dr in dataTable.Rows)
+
+                foreach (DataRow dr in dataTable.Rows)
                 {
-                    
+                    Approval approval = new Approval();
+                    approval.ApprovalId = (int)dr["approval_id"];
+                    approval.Title = (string)dr["approval_name"];
+                    approval.SenderName = (string)dr["sender_name"];
+                    approval.SenderEmail = (string)dr["sender_email"];
+                    approval.ReleaseDate = dr["release_date"].ToString();
+                    approval.DueDate = dr["due_date"].ToString();
+                    //approval.Status = (string)dr["status"];
+                    approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
+
+                    approval.Comment = (string)dr["comments"];
+                    Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_name"].ToString(), dr["comments"].ToString(),
+                        (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
+
+                    recipients.Add(r);
+                    approval.Recipient = recipients;
+                    List<Attachment> attachments = new List<Attachment>();
+                    attachments.Add(new Attachment(dr["attachment_url"].ToString()));
+                    approval.Attachment = attachments;
+                    list.Add(approval);
+
                 }
             }
             return list;
-            /*List<string> list = new List<string>();
-
-            DataTable dt = ApprovalDB.ExecuteDataTable("select approval_name from approval_table;");
-            //  CALL create_approval('tejas','tejas@gmail.com','good','2020-11-11','2020-12-12','budget','parallel','ronak','ronak@gmail.com','vcdkbcoi',1); 
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    list.Add(Convert.ToString(dr["approval_name"]));
-                }
-            }
-
-            return list;*/
         }
 
         public int CreateApproval(Approval approval)

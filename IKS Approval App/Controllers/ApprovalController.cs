@@ -20,11 +20,20 @@ namespace IKS_Approval_App.Controllers
         }
 
         // GET api/approval
-        public IEnumerable<string> Get()
+        public List<Approval> Get()
         {
             ApprovalService service = new ApprovalService();
-            //return service.GetAllApprovals();
-            return null;
+            return service.GetApprovals();
+            
+        }
+
+        //GET api/approval/Title
+       [ActionName("title")]
+        public List<HomeDto> GetApprovalTitle()
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetAllApprovalTitle();
+
         }
 
         // GET api/approval/5
@@ -39,20 +48,20 @@ namespace IKS_Approval_App.Controllers
         Approval value*/
         public int Post()
         {
-           
-                ApprovalService service = new ApprovalService();
 
-                List<Attachment> attachments = new List<Attachment>();
-                attachments.Add(new Attachment("http://fromApi.com"));
+            /*   ApprovalService service = new ApprovalService();
 
-                List<Recipient> recipients = new List<Recipient>();
-                recipients.Add(new Recipient("REMAIL","AJ", "API", "ADMIN", Status.ACCEPTED, 2));
+               List<Attachment> attachments = new List<Attachment>();
+               attachments.Add(new Attachment("http://fromApi.com"));
 
-            var date =new DateTime(2020,04,02,02,01,00).ToString("HH:mm:ss");
-                var data = service.CreateApproval(new Approval(30, "demo", "from API", "Ronak", "FROMAPIat.com", date, date,
-                    date, "FROMAPI", Status.ACCEPTED, Models.Type.PARALLEL, attachments, recipients));
-                return data;
+               List<Recipient> recipients = new List<Recipient>();
+               recipients.Add(new Recipient("REMAIL","AJ", "API", "ADMIN", Status.ACCEPTED, 2));
 
+           var date =new DateTime(2020,04,02,02,01,00).ToString("HH:mm:ss");
+               var data = service.CreateApproval(new Approval(30, "demo", "from API", "Ronak", "FROMAPIat.com", date, date,
+                   date, "FROMAPI", Status.ACCEPTED, Models.Type.PARALLEL, attachments, recipients));
+               return data;*/
+            return 0;
           
             
         }
