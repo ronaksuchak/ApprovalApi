@@ -11,16 +11,16 @@ namespace IKS_Approval_App.Models
         public string Name { get; set; }
 
         public string Comment { get; set; }
-        public string Role { get; set; }
+        //public string Role { get; set; }
         public Status status { get; set; }
         public int SequenceNumber { get; set; }
 
-        public Recipient(string email, string name, string comment, string role, Status status, int sequenceNumber)
+        public Recipient(string email, string name, string comment,  Status status, int sequenceNumber)
         {
             Email = email;
             Name = name;
             Comment = comment;
-            Role = role;
+           // Role = role;
             this.status = status;
             SequenceNumber = sequenceNumber;
         }
