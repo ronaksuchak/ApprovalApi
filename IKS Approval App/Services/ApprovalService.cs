@@ -13,16 +13,23 @@ namespace IKS_Approval_App.Services
     public class ApprovalService : BaseService
     {
 
-        public List<HomeDto> GetAllApprovalTitle()
+        public List<HomeDto> GetAllApprovalTitle(string email)
         {
             List<HomeDto> title = new List<HomeDto>();
             var data = GetApprovals();
             data.ForEach((a) =>
             {
-                HomeDto dto = new HomeDto();
-                dto.ApprovalId = a.ApprovalId;
-                dto.Title = a.Title;
-                title.Add(dto);
+                foreach (Recipient r in a.Recipient)
+                {
+                    if (r.Email.Equals(email))
+                    {
+                        HomeDto dto = new HomeDto();
+                        dto.ApprovalId = a.ApprovalId;
+                        dto.Title = a.Title;
+                        title.Add(dto);
+                    }
+                }
+                
 
             });
             return title;
@@ -33,12 +40,13 @@ namespace IKS_Approval_App.Services
             var queryableData = GetApprovals().AsQueryable().Where(a => a.ApprovalId == id);
             return queryableData.FirstOrDefault();
         }
-       /* public List<Approval> GetApprovalsByRecipient(string email)
+      /*  public List<Approval> GetApprovalsByRecipient(string email)
         {
-            IEnumerable<Approval> qdata = GetApprovals().AsEnumerable();
-            List<Approval> recipients = qdata.Where(a=>a.Recipient.Find()
+            var allApproval = GetApprovals();
 
-            
+            return null;
+
+
         }*/
         public List<Approval> GetApprovals()
         {
@@ -54,6 +62,7 @@ namespace IKS_Approval_App.Services
                     Approval approval = new Approval();
                     approval.ApprovalId = (int)dr["approval_id"];
                     approval.Title = (string)dr["approval_name"];
+                    approval.Description = dr["description"].ToString();
                     approval.SenderName = (string)dr["sender_name"];
                     approval.SenderEmail = (string)dr["sender_email"];
                     approval.ReleaseDate = dr["release_date"].ToString();
@@ -61,7 +70,7 @@ namespace IKS_Approval_App.Services
                     //approval.Status = (string)dr["status"];
                     approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
 
-                    approval.Comment = (string)dr["comments"];
+                    approval.Comment = dr["approval_comment"].ToString();
                     Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_name"].ToString(), dr["comments"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
                     List<Recipient> recipients = new List<Recipient>();

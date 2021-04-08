@@ -9,14 +9,14 @@ using IKS_Approval_App.Models;
 
 namespace IKS_Approval_App.Controllers
 {
-    
+
     public class ApprovalController : ApiController
     {
-        
 
-       public ApprovalController()
+
+        public ApprovalController()
         {
-            
+
         }
 
         // GET api/approval
@@ -25,15 +25,16 @@ namespace IKS_Approval_App.Controllers
         {
             ApprovalService service = new ApprovalService();
             return service.GetApprovals();
-            
-        }
 
+        }
+        //{"email":""}
         //GET api/approval/Title
        [ActionName("title")]
-        public List<HomeDto> GetApprovalTitle()
+      
+        public List<HomeDto> GetApprovalTitle(string email)
         {
             ApprovalService service = new ApprovalService();
-            return service.GetAllApprovalTitle();
+            return service.GetAllApprovalTitle(email.Trim());
 
         }
 
