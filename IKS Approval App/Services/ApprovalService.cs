@@ -13,25 +13,33 @@ namespace IKS_Approval_App.Services
     public class ApprovalService : BaseService
     {
 
-        public List<HomeDto> GetAllApprovalTitle(string email)
+        public List<HomeDto> GetAllApprovalTitleRecived(string email)
         {
             List<HomeDto> title = new List<HomeDto>();
-            var data = GetApprovals();
-            data.ForEach((a) =>
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL List_Of_Approvals_Recipient('"+email+"')");
+            foreach (DataRow dr in dataTable.Rows)
             {
-                foreach (Recipient r in a.Recipient)
-                {
-                    if (r.Email.Equals(email))
-                    {
-                        HomeDto dto = new HomeDto();
-                        dto.ApprovalId = a.ApprovalId;
-                        dto.Title = a.Title;
-                        title.Add(dto);
-                    }
-                }
-                
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = Int32.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                title.Add(dto);
+            }
 
-            });
+                return title;
+        }
+
+        public List<HomeDto> GetAllApprovalTitleSent(string email)
+        {
+            List<HomeDto> title = new List<HomeDto>();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL List_of_approvals_Send('" + email + "')");
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = Int32.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                title.Add(dto);
+            }
+
             return title;
         }
 
@@ -71,7 +79,7 @@ namespace IKS_Approval_App.Services
                     approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
 
                     approval.Comment = dr["approval_comment"].ToString();
-                    Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_name"].ToString(), dr["comments"].ToString(),
+                    Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_name"].ToString(), dr["recipient_comment"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
                     List<Recipient> recipients = new List<Recipient>();
                     recipients.Add(r);

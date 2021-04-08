@@ -175,6 +175,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ActDto.cs" />
     <Compile Include="Models\Approval.cs" />
     <Compile Include="Models\Attachment.cs" />
     <Compile Include="Models\HomeDto.cs" />

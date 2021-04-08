@@ -28,15 +28,25 @@ namespace IKS_Approval_App.Controllers
 
         }
         //{"email":""}
-        //GET api/approval/Title
-       [ActionName("title")]
+        //GET api/approval/recived
+       [ActionName("recived")]
       
-        public List<HomeDto> GetApprovalTitle(string email)
+        public List<HomeDto> GetRecivedApprovalTitle(string email)
         {
             ApprovalService service = new ApprovalService();
-            return service.GetAllApprovalTitle(email.Trim());
+            return service.GetAllApprovalTitleRecived(email.Trim());
 
         }
+
+        [ActionName("sent")]
+        public List<HomeDto> GetSentApprovalTitle(string email)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetAllApprovalTitleSent(email.Trim());
+
+        }
+
+        
 
         // GET api/approval/5
         [ActionName("list")]
