@@ -33,7 +33,13 @@ namespace IKS_Approval_App.Services
             var queryableData = GetApprovals().AsQueryable().Where(a => a.ApprovalId == id);
             return queryableData.FirstOrDefault();
         }
+       /* public List<Approval> GetApprovalsByRecipient(string email)
+        {
+            IEnumerable<Approval> qdata = GetApprovals().AsEnumerable();
+            List<Approval> recipients = qdata.Where(a=>a.Recipient.Find()
 
+            
+        }*/
         public List<Approval> GetApprovals()
         {
             List<Approval> list = new List<Approval>();
