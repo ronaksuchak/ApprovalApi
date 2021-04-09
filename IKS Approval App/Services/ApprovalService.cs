@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Data;
 using IKS_Approval_App.Models;
-using MySql.Data.MySqlClient;
+
 namespace IKS_Approval_App.Services
 {
     public class ApprovalService : BaseService
@@ -52,8 +52,8 @@ namespace IKS_Approval_App.Services
                     approval.Title = (string)dr["approval_name"];
                     approval.Description = dr["description"].ToString();
                     approval.SenderEmail = (string)dr["sender_email"];
-                    approval.ReleaseDate = dr["release_date"].ToString();
-                    approval.DueDate = dr["due_date"].ToString();
+                    approval.ReleaseDate = DateTime.Parse(dr["release_date"].ToString());
+                    approval.DueDate = DateTime.Parse(dr["due_date"].ToString());
                     approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
                     approval.Comment = dr["approval_comment"].ToString();
 
@@ -86,14 +86,12 @@ namespace IKS_Approval_App.Services
                     approval.ApprovalId = (int)dr["approval_id"];
                     approval.Title = (string)dr["approval_name"];
                     approval.Description = dr["description"].ToString();
-                    //approval.SenderName = (string)dr["sender_name"];
                     approval.SenderEmail = (string)dr["sender_email"];
-                    approval.ReleaseDate = dr["release_date"].ToString();
-                    approval.DueDate = dr["due_date"].ToString();
-                    //approval.Status = (string)dr["status"];
+                    approval.ReleaseDate = DateTime.Parse(dr["release_date"].ToString());
+                    approval.DueDate = DateTime.Parse(dr["due_date"].ToString());
                     approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
-
                     approval.Comment = dr["approval_comment"].ToString();
+
                     Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_comment"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
                     List<Recipient> recipients = new List<Recipient>();
@@ -112,41 +110,28 @@ namespace IKS_Approval_App.Services
 
 
 
-        public int CreateApproval(Approval approval)
+        public Approval CreateApproval(Approval approval)
         {
-            //var data =  ApprovalDB.ExecuteNonQuery("CALL create_approval(" + approval.SenderName + "," + approval.SenderEmail + "," + approval.Comment + "," + approval.ReleaseDate + ","+approval.DueDate+","+approval.Title+","+approval.Type+","+approval.Recipient.First+");");
-            StringBuilder stringBuilder = new StringBuilder("CALL create_approval(");
-            stringBuilder.Append("'" + approval.SenderEmail + "'")
-                         .Append(",")
-                         .Append("'" + approval.Comment + "'")
-                         .Append(",")
-                         .Append("'" + approval.ReleaseDate + "'")
-                         .Append(",")
-                         .Append("'" + approval.DueDate + "'")
-                         .Append(",")
-                         .Append("'" + approval.Title + "'")
-                         .Append(",")
-                         .Append("'" + approval.Type + "'")
-                         .Append(",");
-            approval.Recipient.ForEach((r) =>
-            {
+            /* ip_sender_email VARCHAR(100),
+     ip_description VARCHAR(200),
+     ip_comments VARCHAR(200),
+     ip_release_date DATETIME,
+     ip_due_date DATETIME,
+     ip_approval_name VARCHAR(100),
+     ip_type_name VARCHAR(50),
+     ip_attachment_url VARCHAR(300)*/
 
-                stringBuilder.Append("'" + r.Email + "'");
-            });
-            stringBuilder.Append(",");
-            approval.Attachment.ForEach((a) =>
-            {
-                stringBuilder.Append("'" + a.AttachmentUrl + "'");
-                stringBuilder.Append(",");
-            });
-            stringBuilder.Append("1");
-            stringBuilder.Append(");");
-            var query = stringBuilder.ToString();
-            Console.WriteLine("QUERY STRING =" + query);
+            StringBuilder qry = new StringBuilder("CALL Status_Update(");
+            qry.Append("'" +approval.SenderEmail + "',");
+            qry.Append("'"+ approval.Description+"',");
+            qry.Append("'" +approval.Comment+ "',");
+            qry.Append("'" + approval.ReleaseDate.ToString("yyyy-MM-dd hh:mm:ss") + "',");
+            qry.Append("'" + approval.DueDate.ToString("yyyy-MM-dd hh:mm:ss") + "',");
+            qry.Append("'" + approval.Title + "',");
+            qry.Append("'" + approval.Type.ToString() + "',");
+            qry.Append("'" + approval.Attachment[0].AttachmentUrl + "',");
 
-            var data = ApprovalDB.ExecuteNonQuery(query);
-
-            return data;
+            return null;
         }
 
 
@@ -159,19 +144,15 @@ namespace IKS_Approval_App.Services
             result.SentCount = sentCount;
             return result;
         }
+
         public int StatusUpdate(ActDto dto)
         {
-
             if (dto.Approval_id == 0 || 
                 dto.RecipientComment.Equals("")|| dto.RecipientComment==null||
                 dto.RecipientEmail == null || dto.RecipientEmail.Equals(""))
             {
                 return 0;
             }
-
-
-           
-
             StringBuilder qry = new StringBuilder("CALL Status_Update(");
             qry.Append("'"+dto.RecipientEmail+"',");
             qry.Append(dto.Approval_id+",");

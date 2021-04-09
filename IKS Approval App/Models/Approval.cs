@@ -15,8 +15,8 @@ namespace IKS_Approval_App.Models
         public string Description { get; set; }
        // public string SenderName { get; set; }
         public string SenderEmail { get; set; }
-        public string ReleaseDate { get; set; }
-        public string DueDate { get; set; }
+        public DateTime ReleaseDate { get; set; }
+        public DateTime DueDate { get; set; }
       
         public string Comment { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
@@ -28,7 +28,7 @@ namespace IKS_Approval_App.Models
 
        
 
-        public Approval(int approvalId, string title, string description, string senderEmail, string releaseDate, string dueDate, string comment, Status status, Type type, List<Attachment> attachment, List<Recipient> recipient)
+        public Approval(int approvalId, string title, string description, string senderEmail, DateTime releaseDate, DateTime dueDate, string comment, Status status, Type type, List<Attachment> attachment, List<Recipient> recipient)
         {
             ApprovalId = approvalId;
             Title = title;
