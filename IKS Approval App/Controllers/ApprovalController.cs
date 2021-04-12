@@ -80,37 +80,30 @@ namespace IKS_Approval_App.Controllers
             return service.GetApprovalsById(id);
         }
 
- 
-       /* [HttpPost]
+
+        [HttpPost]
         [ActionName("add")]
-        public int Post()
+        public HttpResponseMessage Post([FromBody] Approval approval)
         {
-
-            *//*   ApprovalService service = new ApprovalService();
-
-               List<Attachment> attachments = new List<Attachment>();
-               attachments.Add(new Attachment("http://fromApi.com"));
-
-               List<Recipient> recipients = new List<Recipient>();
-               recipients.Add(new Recipient("REMAIL","AJ", "API", "ADMIN", Status.ACCEPTED, 2));
-
-           var date =new DateTime(2020,04,02,02,01,00).ToString("HH:mm:ss");
-               var data = service.CreateApproval(new Approval(30, "demo", "from API", "Ronak", "FROMAPIat.com", date, date,
-                   date, "FROMAPI", Status.ACCEPTED, Models.Type.PARALLEL, attachments, recipients));
-               return data;*//*
-            return 0;
-          
-            
-        }*/
-
-        // PUT api/approval/5
-       /* public void Put(int id, [FromBody]string value)
-        {
+            if (!approval.validate())
+                return this.Request.CreateResponse(HttpStatusCode.BadRequest);
+            else
+            {
+                ApprovalService service = new ApprovalService();
+                var approvalNew = service.CreateApproval(approval);
+                return this.Request.CreateResponse(HttpStatusCode.Created);
+            }
+           
         }
 
-        // DELETE api/approval/5
-        public void Delete(int id)
-        {
-        }*/
+        // PUT api/approval/5
+        /* public void Put(int id, [FromBody]string value)
+         {
+         }
+
+         // DELETE api/approval/5
+         public void Delete(int id)
+         {
+         }*/
     }
 }

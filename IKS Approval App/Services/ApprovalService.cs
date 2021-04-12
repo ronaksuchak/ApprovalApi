@@ -112,14 +112,7 @@ namespace IKS_Approval_App.Services
 
         public Approval CreateApproval(Approval approval)
         {
-            /* ip_sender_email VARCHAR(100),
-     ip_description VARCHAR(200),
-     ip_comments VARCHAR(200),
-     ip_release_date DATETIME,
-     ip_due_date DATETIME,
-     ip_approval_name VARCHAR(100),
-     ip_type_name VARCHAR(50),
-     ip_attachment_url VARCHAR(300)*/
+            
 
             StringBuilder qry = new StringBuilder("CALL create_approval(");
             qry.Append("'" +approval.SenderEmail + "',");
@@ -129,14 +122,38 @@ namespace IKS_Approval_App.Services
             qry.Append("'" + approval.DueDate.ToString("yyyy-MM-dd hh:mm:ss") + "',");
             qry.Append("'" + approval.Title + "',");
             qry.Append("'" + approval.Type.ToString() + "',");
-            qry.Append("'" + approval.Attachment[0].AttachmentUrl + "',");
-            
+            qry.Append("'" + approval.Attachment[0].AttachmentUrl + "');");
+            var dataTable = ApprovalDB.ExecuteDataTable(qry.ToString());
+            int approvalId = 0;
+            if (dataTable != null && dataTable.Rows.Count > 0)
+            {
+               foreach(DataRow dr in dataTable.Rows)
+                {
+                    approvalId = Int32.Parse(dr["new_approval_id"].ToString());
+                }
+               
+                approval.Recipient.ForEach(r => {
+                    StringBuilder recpientQry = new StringBuilder("CALL adding_recipients(");
+                    recpientQry.Append("'" + r.Email + "',");
+                    recpientQry.Append(r.SequenceNumber + ",");
+                    recpientQry.Append(approvalId + ");");
+                    ApprovalDB.ExecuteNonQuery(recpientQry.ToString());
+                });
 
-            return null;
+               
+            }
+
+            else
+            {
+                return null;
+            }
+            
+            var result = GetApprovalsById(approvalId);
+            return result;
         }
 
 
-         public CountDto getHomeCount(string email)
+        public CountDto getHomeCount(string email)
         {
             var recivedCount =  GetAllApprovalTitleSent(email).Count;
             var sentCount = GetAllApprovalTitleRecived(email).Count;
