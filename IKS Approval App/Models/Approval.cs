@@ -50,5 +50,31 @@ namespace IKS_Approval_App.Models
         {
 
         }
+
+        public bool validate()
+        {
+            if (Title.Equals("") || Title == null)
+                return false;
+            if (Description.Equals("") || Description == null)
+                return false;
+            if (SenderEmail.Equals("") || SenderEmail == null)
+                return false;
+            if (ReleaseDate.Equals("") || ReleaseDate == null)
+                return false;
+            if (DueDate.Equals("") || DueDate == null)
+                return false;
+            if (Comment.Equals("") || Comment == null)
+                return false;
+            if (! (Status.IsDefined(typeof(Status),Status)))
+                return false;
+            if (! (Type.IsDefined(typeof(Type),Type)))
+                return false;
+            if (Attachment == null)
+                return false;
+            if ( Recipient == null)
+                return false;
+            
+            return true;
+        }
     }
 }
