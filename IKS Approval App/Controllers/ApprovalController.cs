@@ -54,11 +54,11 @@ namespace IKS_Approval_App.Controllers
             var change = service.StatusUpdate(dto);
             if (change > 0)
             {
-                return Ok();
+                return Ok();//200
             }
             else
             {
-                return BadRequest();
+                return BadRequest(); //400
             }
 
         }

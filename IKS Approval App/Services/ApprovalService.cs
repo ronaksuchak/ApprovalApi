@@ -121,7 +121,7 @@ namespace IKS_Approval_App.Services
      ip_type_name VARCHAR(50),
      ip_attachment_url VARCHAR(300)*/
 
-            StringBuilder qry = new StringBuilder("CALL Status_Update(");
+            StringBuilder qry = new StringBuilder("CALL create_approval(");
             qry.Append("'" +approval.SenderEmail + "',");
             qry.Append("'"+ approval.Description+"',");
             qry.Append("'" +approval.Comment+ "',");
@@ -130,6 +130,7 @@ namespace IKS_Approval_App.Services
             qry.Append("'" + approval.Title + "',");
             qry.Append("'" + approval.Type.ToString() + "',");
             qry.Append("'" + approval.Attachment[0].AttachmentUrl + "',");
+            
 
             return null;
         }
@@ -153,6 +154,7 @@ namespace IKS_Approval_App.Services
             {
                 return 0;
             }
+
             StringBuilder qry = new StringBuilder("CALL Status_Update(");
             qry.Append("'"+dto.RecipientEmail+"',");
             qry.Append(dto.Approval_id+",");
