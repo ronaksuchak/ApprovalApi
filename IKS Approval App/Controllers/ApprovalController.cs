@@ -68,7 +68,7 @@ namespace IKS_Approval_App.Controllers
         public CountDto getCount(string email)
         {
             ApprovalService service = new ApprovalService();
-            return service.getHomeCount(email.Trim());
+            return service.GetCount(email.Trim());
         }
 
 

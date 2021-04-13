@@ -163,18 +163,6 @@ namespace IKS_Approval_App.Services
                 return null;
             }
         }
-
-
-        public CountDto getHomeCount(string email)
-        {
-            var recivedCount = GetAllApprovalTitleSent(email).Count;
-            var sentCount = GetAllApprovalTitleRecived(email).Count;
-            var result = new CountDto();
-            result.RecivedCount = recivedCount;
-            result.SentCount = sentCount;
-            return result;
-        }
-
         public int StatusUpdate(ActDto dto)
         {
             if (dto.Approval_id == 0 ||
@@ -195,5 +183,25 @@ namespace IKS_Approval_App.Services
 
             return update;
         }
+        public CountDto GetCount(string email)
+        {
+            CountDto dto = new CountDto();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL Count_by_Status('" + email + "')");
+           
+            if (dataTable != null && dataTable.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    dto.AcceptedCount = Int32.Parse(dr["accepted"].ToString());
+                    dto.RecivedCount = Int32.Parse(dr["recieved"].ToString());
+                    dto.RejectedCount = Int32.Parse(dr["rejected"].ToString());
+                    dto.PendingCount = Int32.Parse(dr["pending"].ToString());
+                }
+              
+            }
+            return dto;
+        }
     }
+   
+    
 }
