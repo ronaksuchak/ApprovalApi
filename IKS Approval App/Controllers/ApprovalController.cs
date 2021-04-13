@@ -21,13 +21,13 @@ namespace IKS_Approval_App.Controllers
         }
 
         // GET api/approval
-        [ActionName("list")]
+       /* [ActionName("list")]
         public List<Approval> Get()
         {
             ApprovalService service = new ApprovalService();
             return service.GetApprovals();
 
-        }
+        }*/
         //{"email":""}
         //GET api/approval/recived
        [ActionName("recived")]
@@ -83,15 +83,15 @@ namespace IKS_Approval_App.Controllers
 
         [HttpPost]
         [ActionName("add")]
-        public HttpResponseMessage Post([FromBody] Approval approval)
+        public HttpResponseMessage Post([FromBody] ApprovalDto approval)
         {
             if (!approval.validate())
                 return this.Request.CreateResponse(HttpStatusCode.BadRequest);
             else
             {
                 ApprovalService service = new ApprovalService();
-                var approvalNew = service.CreateApproval(approval);
-                return this.Request.CreateResponse(HttpStatusCode.Created);
+                Approval approvalNew = service.CreateApproval(approval);
+                return this.Request.CreateResponse<Approval>(HttpStatusCode.Created ,approvalNew);
             }
            
         }
