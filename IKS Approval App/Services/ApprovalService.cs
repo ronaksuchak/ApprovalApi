@@ -43,8 +43,9 @@ namespace IKS_Approval_App.Services
         {
             Approval approval = new Approval();
             var dataTable = ApprovalDB.ExecuteDataTable("CALL Get_By_id(" + id + ")");
-            if (dataTable != null && dataTable.Rows.Count == 1)
+            if (dataTable != null && dataTable.Rows.Count > 0)
             {
+                List<Recipient> recipients = new List<Recipient>();
                 foreach (DataRow dr in dataTable.Rows)
                 {
 
@@ -59,13 +60,13 @@ namespace IKS_Approval_App.Services
 
                     Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_comment"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
-                    List<Recipient> recipients = new List<Recipient>();
+
                     recipients.Add(r);
                     approval.Recipient = recipients;
-
-                    List<Attachment> attachments = new List<Attachment>();
+                    approval.Attachment = dr["attachment_url"].ToString();
+                    /*List<Attachment> attachments = new List<Attachment>();
                     attachments.Add(new Attachment(dr["attachment_url"].ToString()));
-                    approval.Attachment = attachments;
+                    approval.Attachment = attachments;*/
 
 
                 }
@@ -80,10 +81,11 @@ namespace IKS_Approval_App.Services
             var dataTable = ApprovalDB.ExecuteDataTable("CALL GetAll();");
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
+                
                 foreach (DataRow dr in dataTable.Rows)
                 {
                     Approval approval = new Approval();
-                    approval.ApprovalId = (int)dr["approval_id"];
+                    approval.ApprovalId = Int32.Parse(dr["approval_id"].ToString());
                     approval.Title = (string)dr["approval_name"];
                     approval.Description = dr["description"].ToString();
                     approval.SenderEmail = (string)dr["sender_email"];
@@ -91,17 +93,30 @@ namespace IKS_Approval_App.Services
                     approval.DueDate = DateTime.Parse(dr["due_date"].ToString());
                     approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
                     approval.Comment = dr["approval_comment"].ToString();
+                    
+                    approval.Attachment = dr["attachment_url"].ToString();
 
-                    Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_comment"].ToString(),
-                        (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
-                    List<Recipient> recipients = new List<Recipient>();
-                    recipients.Add(r);
-                    approval.Recipient = recipients;
-                    List<Attachment> attachments = new List<Attachment>();
-                    attachments.Add(new Attachment(dr["attachment_url"].ToString()));
-                    approval.Attachment = attachments;
-                    list.Add(approval);
+                    if (list.Contains(new Approval(approval.ApprovalId)))
+                    {
+                        Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_comment"].ToString(),
+                            (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
 
+                       /* List<Recipient> recipients = new List<Recipient>();
+                        recipients.Add(r);*/
+                        approval.Recipient.Add(r);
+
+                    }
+                    else
+                    {
+                        Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_comment"].ToString(),
+                            (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
+
+                        List<Recipient> recipients = new List<Recipient>();
+                        recipients.Add(r);
+                        approval.Recipient = recipients;
+                        list.Add(approval);
+                    }
+                   
                 }
             }
             return list;
@@ -110,78 +125,83 @@ namespace IKS_Approval_App.Services
 
 
 
-        public Approval CreateApproval(Approval approval)
+        public Approval CreateApproval(ApprovalDto approval)
         {
-            
+
 
             StringBuilder qry = new StringBuilder("CALL create_approval(");
-            qry.Append("'" +approval.SenderEmail + "',");
-            qry.Append("'"+ approval.Description+"',");
-            qry.Append("'" +approval.Comment+ "',");
-            qry.Append("'" + approval.ReleaseDate.ToString("yyyy-MM-dd hh:mm:ss") + "',");
+            qry.Append("'" + approval.SenderEmail + "',");
+            qry.Append("'" + approval.Description + "',");
+            qry.Append("'" + approval.Comment + "',");
+            qry.Append("'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "',");
             qry.Append("'" + approval.DueDate.ToString("yyyy-MM-dd hh:mm:ss") + "',");
             qry.Append("'" + approval.Title + "',");
             qry.Append("'" + approval.Type.ToString() + "',");
-            qry.Append("'" + approval.Attachment[0].AttachmentUrl + "');");
+            qry.Append("'" + approval.Attachment + "');");
             var dataTable = ApprovalDB.ExecuteDataTable(qry.ToString());
             int approvalId = 0;
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
-               foreach(DataRow dr in dataTable.Rows)
+                foreach (DataRow dr in dataTable.Rows)
                 {
                     approvalId = Int32.Parse(dr["new_approval_id"].ToString());
                 }
-               
-                approval.Recipient.ForEach(r => {
+                int seq = 1;
+                approval.RecipientEmail.ForEach(r =>
+                {
                     StringBuilder recpientQry = new StringBuilder("CALL adding_recipients(");
-                    recpientQry.Append("'" + r.Email + "',");
-                    recpientQry.Append(r.SequenceNumber + ",");
+                    recpientQry.Append("'" + r + "',");
+                    recpientQry.Append(seq++ + ",");
                     recpientQry.Append(approvalId + ");");
                     ApprovalDB.ExecuteNonQuery(recpientQry.ToString());
                 });
 
-               
+                return GetApprovalsById(approvalId);
             }
-
             else
             {
                 return null;
             }
-            
-            var result = GetApprovalsById(approvalId);
-            return result;
         }
-
-
-        public CountDto getHomeCount(string email)
-        {
-            var recivedCount =  GetAllApprovalTitleSent(email).Count;
-            var sentCount = GetAllApprovalTitleRecived(email).Count;
-            var result = new CountDto();
-            result.RecivedCount = recivedCount;
-            result.SentCount = sentCount;
-            return result;
-        }
-
         public int StatusUpdate(ActDto dto)
         {
-            if (dto.Approval_id == 0 || 
-                dto.RecipientComment.Equals("")|| dto.RecipientComment==null||
+            if (dto.Approval_id == 0 ||
+                dto.RecipientComment.Equals("") || dto.RecipientComment == null ||
                 dto.RecipientEmail == null || dto.RecipientEmail.Equals(""))
             {
                 return 0;
             }
 
             StringBuilder qry = new StringBuilder("CALL Status_Update(");
-            qry.Append("'"+dto.RecipientEmail+"',");
-            qry.Append(dto.Approval_id+",");
-            qry.Append("'"+dto.RecipientComment+"',");
-            qry.Append("'"+dto.Status.ToString()+"',");
-            qry.Append("'"+DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") +"');");
+            qry.Append("'" + dto.RecipientEmail + "',");
+            qry.Append(dto.Approval_id + ",");
+            qry.Append("'" + dto.RecipientComment + "',");
+            qry.Append("'" + dto.Status.ToString() + "',");
+            qry.Append("'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "');");
             var update = ApprovalDB.ExecuteNonQuery(qry.ToString());
 
 
             return update;
         }
+        public CountDto GetCount(string email)
+        {
+            CountDto dto = new CountDto();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL Count_by_Status('" + email + "')");
+           
+            if (dataTable != null && dataTable.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    dto.AcceptedCount = Int32.Parse(dr["accepted"].ToString());
+                    dto.RecivedCount = Int32.Parse(dr["recieved"].ToString());
+                    dto.RejectedCount = Int32.Parse(dr["rejected"].ToString());
+                    dto.PendingCount = Int32.Parse(dr["pending"].ToString());
+                }
+              
+            }
+            return dto;
+        }
     }
+   
+    
 }

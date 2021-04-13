@@ -23,12 +23,12 @@ namespace IKS_Approval_App.Models
         public Status Status { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public Type Type { get; set; }
-        public List<Attachment> Attachment { get; set; }
+        public string Attachment { get; set; }
         public List<Recipient> Recipient { get; set; }
 
        
 
-        public Approval(int approvalId, string title, string description, string senderEmail, DateTime releaseDate, DateTime dueDate, string comment, Status status, Type type, List<Attachment> attachment, List<Recipient> recipient)
+        public Approval(int approvalId, string title, string description, string senderEmail, DateTime releaseDate, DateTime dueDate, string comment, Status status, Type type, string attachment, List<Recipient> recipient)
         {
             ApprovalId = approvalId;
             Title = title;
@@ -46,10 +46,11 @@ namespace IKS_Approval_App.Models
         }
         
 
-        public Approval()
+        public Approval(int id)
         {
-
+            ApprovalId = id;
         }
+        public Approval() { }
 
         public bool validate()
         {
@@ -75,6 +76,12 @@ namespace IKS_Approval_App.Models
                 return false;
             
             return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Approval approval &&
+                   ApprovalId == approval.ApprovalId;
         }
     }
 }
