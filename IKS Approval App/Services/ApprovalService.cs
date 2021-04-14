@@ -183,24 +183,45 @@ namespace IKS_Approval_App.Services
 
             return update;
         }
-        public CountDto GetCount(string email)
+
+        public CountDto GetSenderCount(string email)
         {
             CountDto dto = new CountDto();
-            var dataTable = ApprovalDB.ExecuteDataTable("CALL Count_by_Status('" + email + "')");
-           
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL count_approvalSender('" + email + "')");
+
             if (dataTable != null && dataTable.Rows.Count > 0)
             {
                 foreach (DataRow dr in dataTable.Rows)
                 {
-                    dto.AcceptedCount = Int32.Parse(dr["accepted"].ToString());
-                    dto.RecivedCount = Int32.Parse(dr["recieved"].ToString());
-                    dto.RejectedCount = Int32.Parse(dr["rejected"].ToString());
-                    dto.PendingCount = Int32.Parse(dr["pending"].ToString());
+                    dto.AcceptedSenderCount = Int32.Parse(dr["accepted"].ToString());
+                    dto.TotalSenderCount = Int32.Parse(dr["Total"].ToString());
+                    dto.RejectedSenderCount = Int32.Parse(dr["rejected"].ToString());
+                    dto.PendingSenderCount = Int32.Parse(dr["pending"].ToString());
                 }
-              
+
             }
             return dto;
         }
+        public CountDto GetRecieverCount(string email)
+        {
+            CountDto dto = new CountDto();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL count_approvalReciever('" + email + "')");
+
+            if (dataTable != null && dataTable.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    dto.AcceptedRecieverCount = Int32.Parse(dr["accepted"].ToString());
+                    dto.TotalRecieverCount = Int32.Parse(dr["total"].ToString());
+                    dto.RejectedRecieverCount = Int32.Parse(dr["rejected"].ToString());
+                    dto.PendingRecieverCount = Int32.Parse(dr["pending"].ToString());
+                }
+
+            }
+            return dto;
+        }
+
+      
     }
    
     

@@ -62,16 +62,6 @@ namespace IKS_Approval_App.Controllers
             }
 
         }
-
-        [HttpGet]
-        [ActionName("count")]
-        public CountDto getCount(string email)
-        {
-            ApprovalService service = new ApprovalService();
-            return service.GetCount(email.Trim());
-        }
-
-
         // GET api/approval/5
         [ActionName("list")]
         public Approval Get(int id)
@@ -96,14 +86,21 @@ namespace IKS_Approval_App.Controllers
            
         }
 
-        // PUT api/approval/5
-        /* public void Put(int id, [FromBody]string value)
-         {
-         }
 
-         // DELETE api/approval/5
-         public void Delete(int id)
-         {
-         }*/
+        [HttpGet]
+        [ActionName("senderCount")]
+        public CountDto getSenderCount(string email)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetSenderCount(email.Trim());
+        }
+
+        [HttpGet]
+        [ActionName("recieverCount")]
+        public CountDto GetRecieverCount(string email)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetRecieverCount(email.Trim());
+        }
     }
 }
