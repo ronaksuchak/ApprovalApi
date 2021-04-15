@@ -30,7 +30,7 @@ namespace IKS_Approval_App.Controllers
         }*/
         //{"email":""}
         //GET api/approval/recived
-       [ActionName("recived")]
+       /*[ActionName("recived")]
       
         public List<HomeDto> GetRecivedApprovalTitle(string email)
         {
@@ -45,7 +45,7 @@ namespace IKS_Approval_App.Controllers
             ApprovalService service = new ApprovalService();
             return service.GetAllApprovalTitleSent(email.Trim());
 
-        }
+        }*/
         [HttpPost]
         [ActionName("act")]
         public IHttpActionResult UpdateStatus(ActDto dto)
@@ -102,5 +102,38 @@ namespace IKS_Approval_App.Controllers
             ApprovalService service = new ApprovalService();
             return service.GetRecieverCount(email.Trim());
         }
+
+
+
+        [ActionName("totalRecived")]
+
+        public List<HomeDto> GetRecivedApprovalTitle(string email)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetTotalCountRecived(email.Trim());
+        }
+
+        [ActionName("totalSent")]
+        public List<HomeDto> GetSentApprovalTitle(string email)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetTotalCountSent(email.Trim());
+
+        }
+
+        [ActionName("sentStatus")]
+        public List<HomeDto> GetSenderStatus(string email, string status)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetSentCountStatus(email.Trim(), status.Trim());
+        }
+
+        [ActionName("recievedStatus")]
+        public List<HomeDto> GetRecieverStatus(string email, string status)
+        {
+            ApprovalService service = new ApprovalService();
+            return service.GetCountReceivedStatus(email.Trim(), status.Trim());
+        }
+
     }
 }

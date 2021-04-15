@@ -7,16 +7,10 @@ namespace IKS_Approval_App.Models
 {
     public class CountDto
     {
-        public int TotalSenderCount { get; set; }
-        public int AcceptedSenderCount { get; set; }
-        public int RejectedSenderCount { get; set; }
-        public int PendingSenderCount { get; set; }
-
-        public int TotalRecieverCount { get; set; }
-        public int AcceptedRecieverCount { get; set; }
-        public int RejectedRecieverCount { get; set; }
-        public int PendingRecieverCount { get; set; }
-
+        public int Total { get; set; }
+        public int Accepted { get; set; }
+        public int Rejected { get; set; }
+        public int Pending { get; set; }
 
     }
 }

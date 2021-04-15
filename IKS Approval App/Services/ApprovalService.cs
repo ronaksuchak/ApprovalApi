@@ -9,7 +9,7 @@ namespace IKS_Approval_App.Services
     public class ApprovalService : BaseService
     {
 
-        public List<HomeDto> GetAllApprovalTitleRecived(string email)
+      /*  public List<HomeDto> GetAllApprovalTitleRecived(string email)
         {
             List<HomeDto> title = new List<HomeDto>();
             var dataTable = ApprovalDB.ExecuteDataTable("CALL List_Of_Approvals_Recipient('" + email + "')");
@@ -37,7 +37,7 @@ namespace IKS_Approval_App.Services
             }
 
             return title;
-        }
+        }*/
 
         public Approval GetApprovalsById(int id)
         {
@@ -71,6 +71,8 @@ namespace IKS_Approval_App.Services
 
                 }
             }
+            approval.Recipient.Sort((x, y) => { return x.SequenceNumber.CompareTo(y.SequenceNumber); });
+
             return approval;
         }
 
@@ -193,10 +195,10 @@ namespace IKS_Approval_App.Services
             {
                 foreach (DataRow dr in dataTable.Rows)
                 {
-                    dto.AcceptedSenderCount = Int32.Parse(dr["accepted"].ToString());
-                    dto.TotalSenderCount = Int32.Parse(dr["Total"].ToString());
-                    dto.RejectedSenderCount = Int32.Parse(dr["rejected"].ToString());
-                    dto.PendingSenderCount = Int32.Parse(dr["pending"].ToString());
+                    dto.Accepted= Int32.Parse(dr["accepted"].ToString());
+                    dto.Total= Int32.Parse(dr["Total"].ToString());
+                    dto.Rejected= Int32.Parse(dr["rejected"].ToString());
+                    dto.Pending= Int32.Parse(dr["pending"].ToString());
                 }
 
             }
@@ -211,18 +213,78 @@ namespace IKS_Approval_App.Services
             {
                 foreach (DataRow dr in dataTable.Rows)
                 {
-                    dto.AcceptedRecieverCount = Int32.Parse(dr["accepted"].ToString());
-                    dto.TotalRecieverCount = Int32.Parse(dr["total"].ToString());
-                    dto.RejectedRecieverCount = Int32.Parse(dr["rejected"].ToString());
-                    dto.PendingRecieverCount = Int32.Parse(dr["pending"].ToString());
+                    dto.Accepted= Int32.Parse(dr["accepted"].ToString());
+                    dto.Total= Int32.Parse(dr["total"].ToString());
+                    dto.Rejected= Int32.Parse(dr["rejected"].ToString());
+                    dto.Pending= Int32.Parse(dr["pending"].ToString());
                 }
 
             }
             return dto;
         }
+        public List<HomeDto> GetTotalCountRecived(string email)
+        {
+            List<HomeDto> title = new List<HomeDto>();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL List_Of_approvals_Recipient('" + email + "')");
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = Int32.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                title.Add(dto);
+            }
 
-      
+            return title;
+        }
+
+        //total
+        public List<HomeDto> GetTotalCountSent(string email)
+        {
+            List<HomeDto> title = new List<HomeDto>();
+            var dataTable = ApprovalDB.ExecuteDataTable("List_Of_approvals_Sender('" + email + "')");
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = Int32.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                title.Add(dto);
+            }
+
+            return title;
+        }
+
+        public List<HomeDto> GetSentCountStatus(string email, string status)
+        {
+            List<HomeDto> title = new List<HomeDto>();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL List_of_sender_Status('" + email + "','" + status + "');");
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = int.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                title.Add(dto);
+            }
+            return title;
+        }
+
+        public List<HomeDto> GetCountReceivedStatus(string email, string status)
+        {
+            List<HomeDto> title = new List<HomeDto>();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL List_of_recipient_Status('" + email + "','" + status + "')");
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                HomeDto dto = new HomeDto();
+                dto.ApprovalId = int.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                title.Add(dto);
+            }
+            return title;
+        }
+
+
     }
-   
-    
+
+
+
+
 }
