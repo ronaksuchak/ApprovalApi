@@ -11,6 +11,7 @@ namespace IKS_Approval_App.Models
        
         ACCEPTED,
         REJECTED,
-        PENDING
+        PENDING,
+        NA
     }
 }

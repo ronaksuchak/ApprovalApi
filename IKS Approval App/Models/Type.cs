@@ -5,7 +5,7 @@ using System.Web;
 
 namespace IKS_Approval_App.Models
 {
-    public enum Type
+    public enum ApprovalType
     {
         
         PARALLEL,

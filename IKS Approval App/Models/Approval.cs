@@ -22,13 +22,13 @@ namespace IKS_Approval_App.Models
         [JsonConverter(typeof(StringEnumConverter))]
         public Status Status { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public Type Type { get; set; }
+        public ApprovalType Type { get; set; }
         public string Attachment { get; set; }
         public List<Recipient> Recipient { get; set; }
 
        
 
-        public Approval(int approvalId, string title, string description, string senderEmail, DateTime releaseDate, DateTime dueDate, string comment, Status status, Type type, string attachment, List<Recipient> recipient)
+        public Approval(int approvalId, string title, string description, string senderEmail, DateTime releaseDate, DateTime dueDate, string comment, Status status, ApprovalType type, string attachment, List<Recipient> recipient)
         {
             ApprovalId = approvalId;
             Title = title;
@@ -68,7 +68,7 @@ namespace IKS_Approval_App.Models
                 return false;
             if (! (Status.IsDefined(typeof(Status),Status)))
                 return false;
-            if (! (Type.IsDefined(typeof(Type),Type)))
+            if (! (ApprovalType.IsDefined(typeof(ApprovalType),Type)))
                 return false;
             if (Attachment == null)
                 return false;

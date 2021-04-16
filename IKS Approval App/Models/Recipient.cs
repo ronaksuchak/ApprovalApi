@@ -26,6 +26,14 @@ namespace IKS_Approval_App.Models
             Comment = comment;
            
             this.status = status;
+
+            SequenceNumber = sequenceNumber;
+        }
+
+        public Recipient(string email, Status status, int sequenceNumber)
+        {
+            Email = email;
+            this.status = status;
             SequenceNumber = sequenceNumber;
         }
     }

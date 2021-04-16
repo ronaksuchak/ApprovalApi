@@ -15,6 +15,10 @@ namespace IKS_Approval_App.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Status Status { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ApprovalType ApprovalType { get; set; }
+
         //public DateTime ApprovedDateTime { get; set; }
     }
 }

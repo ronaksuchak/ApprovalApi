@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 using IKS_Approval_App.Models;
@@ -48,10 +49,10 @@ namespace IKS_Approval_App.Controllers
         }*/
         [HttpPost]
         [ActionName("act")]
-        public IHttpActionResult UpdateStatus(ActDto dto)
+        public async Task<IHttpActionResult> UpdateStatus(ActDto dto)
         {
             ApprovalService service = new ApprovalService();
-            var change = service.StatusUpdate(dto);
+            var change = await service.StatusUpdateAsync(dto);
             if (change > 0)
             {
                 return Ok();//200
@@ -122,14 +123,14 @@ namespace IKS_Approval_App.Controllers
         }
 
         [ActionName("sentStatus")]
-        public List<HomeDto> GetSenderStatus(string email, string status)
+        public List<HomeDto> GetSentStatus(string email, string status)
         {
             ApprovalService service = new ApprovalService();
             return service.GetSentCountStatus(email.Trim(), status.Trim());
         }
 
         [ActionName("recievedStatus")]
-        public List<HomeDto> GetRecieverStatus(string email, string status)
+        public List<HomeDto> GetRecievedStatus(string email, string status)
         {
             ApprovalService service = new ApprovalService();
             return service.GetCountReceivedStatus(email.Trim(), status.Trim());
