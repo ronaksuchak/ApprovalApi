@@ -18,6 +18,7 @@ namespace IKS_Approval_App.Models
         [JsonConverter(typeof(StringEnumConverter))]
         public Status status { get; set; }
         public int SequenceNumber { get; set; }
+        public String ApprovedDateTime { get; set; }
 
         public Recipient(string email, string comment,  Status status, int sequenceNumber)
         {

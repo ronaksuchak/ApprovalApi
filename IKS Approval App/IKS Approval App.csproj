@@ -170,6 +170,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ActDto.cs" />
+    <Compile Include="Models\ActResponceDto.cs" />
     <Compile Include="Models\ApprovalDto.cs" />
     <Compile Include="Models\Approval.cs" />
     <Compile Include="Models\Attachment.cs" />

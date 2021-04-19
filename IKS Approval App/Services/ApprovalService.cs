@@ -25,7 +25,7 @@ namespace IKS_Approval_App.Services
                     approval.SenderEmail = (string)dr["sender_email"];
                     approval.ReleaseDate = DateTime.Parse(dr["release_date"].ToString());
                     approval.DueDate = DateTime.Parse(dr["due_date"].ToString());
-                    approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
+                    approval.FinalStatus = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
                     approval.Type = (ApprovalType)Enum.Parse(typeof(ApprovalType), dr["type_name"].ToString(), true);
                     approval.Comment = dr["approval_comment"].ToString();
 
@@ -64,7 +64,7 @@ namespace IKS_Approval_App.Services
                     approval.SenderEmail = (string)dr["sender_email"];
                     approval.ReleaseDate = DateTime.Parse(dr["release_date"].ToString());
                     approval.DueDate = DateTime.Parse(dr["due_date"].ToString());
-                    approval.Status = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
+                    approval.FinalStatus = (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true);
                     approval.Comment = dr["approval_comment"].ToString();
 
                     approval.Attachment = dr["attachment_url"].ToString();
@@ -154,14 +154,15 @@ namespace IKS_Approval_App.Services
             }
         }
 
-        public async Task<int> StatusUpdateAsync(ActDto dto)
+        public async Task<ActResponceDto> StatusUpdateAsync(ActDto dto)
         {
             if (dto.Approval_id == 0 ||
                 dto.RecipientComment.Equals("") || dto.RecipientComment == null ||
                 dto.RecipientEmail == null || dto.RecipientEmail.Equals(""))
             {
-                return await Task.FromResult(0);
+                return await Task.FromResult(new ActResponceDto());
             }
+            ActResponceDto actResponceDto = new ActResponceDto();
             //Update indivadual status 
             StringBuilder qry = new StringBuilder("CALL Status_Update(");
             qry.Append("'" + dto.RecipientEmail + "',");
@@ -174,6 +175,9 @@ namespace IKS_Approval_App.Services
             //check if final status can be change
             //get all recipients for approval 
             List<Recipient> recipients = await GetRecipientsForApproval(dto.Approval_id);
+
+            actResponceDto.ApprovalId = dto.Approval_id;
+            actResponceDto.Recipient = recipients;
 
             /*CASE-1.p  for parallel
              * for parallel of any one accecpts final status will be changed to  approved
@@ -192,6 +196,8 @@ namespace IKS_Approval_App.Services
                     {
                         //update final status and return
                         UpdateFinalStatus(dto.Approval_id, Status.ACCEPTED);
+                        actResponceDto.FinalStatus = Status.ACCEPTED;
+                        actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                         return ;
                     }
                    else if (r.status.Equals(Status.REJECTED))
@@ -203,6 +209,8 @@ namespace IKS_Approval_App.Services
                 if(rejectCount == recipients.Count)
                 {
                     UpdateFinalStatus(dto.Approval_id, Status.REJECTED);
+                    actResponceDto.FinalStatus = Status.REJECTED;
+                    actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                 }
             }
             if (dto.ApprovalType.Equals(ApprovalType.SEQUENTIAL))
@@ -214,6 +222,9 @@ namespace IKS_Approval_App.Services
                     {
                         //update final status and return
                         UpdateFinalStatus(dto.Approval_id, Status.REJECTED);
+                        actResponceDto.FinalStatus = Status.REJECTED;
+                        actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+
                         return;
                     }
                     else if (r.status.Equals(Status.ACCEPTED))
@@ -223,14 +234,17 @@ namespace IKS_Approval_App.Services
                    
 
                 });
+
                 if(acceptedCount == recipients.Count)
                 {
                     UpdateFinalStatus(dto.Approval_id, Status.ACCEPTED);
+                    actResponceDto.FinalStatus = Status.ACCEPTED;
+                    actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                 }
             }
 
 
-                return await Task.FromResult(update);
+                return await Task.FromResult(actResponceDto);
         }
 
         public int UpdateFinalStatus(int approvalid,Status s)
@@ -255,6 +269,7 @@ namespace IKS_Approval_App.Services
                     Recipient r = new Recipient(dr["recipient_email"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true),
                         Int32.Parse(dr["sequence_number"].ToString()));
+                    r.ApprovedDateTime = dr["recipient_approved_date"].ToString();
                     list.Add(r);
 
                 }

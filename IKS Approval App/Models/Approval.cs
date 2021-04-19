@@ -20,7 +20,7 @@ namespace IKS_Approval_App.Models
       
         public string Comment { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public Status Status { get; set; }
+        public Status FinalStatus { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public ApprovalType Type { get; set; }
         public string Attachment { get; set; }
@@ -39,7 +39,7 @@ namespace IKS_Approval_App.Models
             DueDate = dueDate;
            
             Comment = comment;
-            Status = status;
+            FinalStatus = status;
             Type = type;
             Attachment = attachment;
             Recipient = recipient;
@@ -66,7 +66,7 @@ namespace IKS_Approval_App.Models
                 return false;
             if (Comment.Equals("") || Comment == null)
                 return false;
-            if (! (Status.IsDefined(typeof(Status),Status)))
+            if (! (Status.IsDefined(typeof(Status),FinalStatus)))
                 return false;
             if (! (ApprovalType.IsDefined(typeof(ApprovalType),Type)))
                 return false;

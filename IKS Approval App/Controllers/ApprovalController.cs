@@ -49,18 +49,19 @@ namespace IKS_Approval_App.Controllers
         }*/
         [HttpPost]
         [ActionName("act")]
-        public async Task<IHttpActionResult> UpdateStatus(ActDto dto)
+        public async Task<HttpResponseMessage> UpdateStatus(ActDto dto)
         {
             ApprovalService service = new ApprovalService();
-            var change = await service.StatusUpdateAsync(dto);
-            if (change > 0)
+            var responceDto = await service.StatusUpdateAsync(dto);
+            if(responceDto.ApprovalId == 0)
             {
-                return Ok();//200
+                return this.Request.CreateResponse(HttpStatusCode.BadRequest);
             }
             else
             {
-                return BadRequest(); //400
+                return this.Request.CreateResponse<ActResponceDto>(HttpStatusCode.OK, responceDto);
             }
+          
 
         }
         // GET api/approval/5
