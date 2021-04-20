@@ -37,8 +37,7 @@ namespace IKS_Approval_App.Models
                 return false;
             if (DueDate.Equals("") || DueDate == null)
                 return false;
-            if (Comment.Equals("") || Comment == null)
-                return false;
+           
             if (! (ApprovalType.IsDefined(typeof(ApprovalType),Type)))
                 return false;
             if ( RecipientEmail == null)

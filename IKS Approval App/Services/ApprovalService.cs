@@ -31,7 +31,7 @@ namespace IKS_Approval_App.Services
 
                     Recipient r = new Recipient(dr["recipient_email"].ToString(), dr["recipient_comment"].ToString(),
                         (Status)Enum.Parse(typeof(Status), dr["approval_status"].ToString(), true), Int32.Parse(dr["sequence_number"].ToString()));
-
+                    r.ApprovedDateTime = dr["recipient_approved_date"].ToString();
                     recipients.Add(r);
                     approval.Recipient = recipients;
                     approval.Attachment = dr["attachment_url"].ToString();
@@ -42,7 +42,12 @@ namespace IKS_Approval_App.Services
 
                 }
             }
-            approval.Recipient.Sort((x, y) => { return x.SequenceNumber.CompareTo(y.SequenceNumber); });
+            if (approval.Recipient.Count!=0)
+            {
+                approval.Recipient.Sort((x, y) => { return x.SequenceNumber.CompareTo(y.SequenceNumber); });
+            }
+            
+            
 
             return approval;
         }
@@ -135,7 +140,7 @@ namespace IKS_Approval_App.Services
                     }
                     else
                     {
-                        recpientQry.Append("'" + Status.NA.ToString() + "');");
+                        recpientQry.Append("'" + Status.PENDING.ToString() + "');");
                     }
                     
                         
@@ -162,22 +167,28 @@ namespace IKS_Approval_App.Services
             {
                 return await Task.FromResult(new ActResponceDto());
             }
+
+           var list = await GetRecipientsForApproval(dto.Approval_id);
+
             ActResponceDto actResponceDto = new ActResponceDto();
+            actResponceDto.FinalStatus = Status.PENDING;
             //Update indivadual status 
             StringBuilder qry = new StringBuilder("CALL Status_Update(");
             qry.Append("'" + dto.RecipientEmail + "',");
             qry.Append(dto.Approval_id + ",");
             qry.Append("'" + dto.RecipientComment + "',");
             qry.Append("'" + dto.Status.ToString() + "',");
-            qry.Append("'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "');");
+            qry.Append("'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "',");
+            qry.Append( list.Count + ");");
             var update = ApprovalDB.ExecuteNonQuery(qry.ToString());
+
 
             //check if final status can be change
             //get all recipients for approval 
-            List<Recipient> recipients = await GetRecipientsForApproval(dto.Approval_id);
 
-            actResponceDto.ApprovalId = dto.Approval_id;
-            actResponceDto.Recipient = recipients;
+             List<Recipient> recipients = await GetRecipientsForApproval(dto.Approval_id);
+
+            
 
             /*CASE-1.p  for parallel
              * for parallel of any one accecpts final status will be changed to  approved
@@ -190,15 +201,15 @@ namespace IKS_Approval_App.Services
              if(dto.ApprovalType.Equals(ApprovalType.PARALLEL))
             {
                 int rejectCount = 0;
-                recipients.ForEach(r => 
+                recipients.ForEach(async r => 
                 {
+                    
                     if (r.status.Equals(Status.ACCEPTED))
                     {
                         //update final status and return
-                        UpdateFinalStatus(dto.Approval_id, Status.ACCEPTED);
+                        await UpdateFinalStatus(dto.Approval_id, Status.ACCEPTED);
                         actResponceDto.FinalStatus = Status.ACCEPTED;
                         actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-                        return ;
                     }
                    else if (r.status.Equals(Status.REJECTED))
                     {
@@ -206,22 +217,25 @@ namespace IKS_Approval_App.Services
                     }
 
                 });
-                if(rejectCount == recipients.Count)
+
+              
+
+                if (rejectCount == recipients.Count)
                 {
-                    UpdateFinalStatus(dto.Approval_id, Status.REJECTED);
+                    await UpdateFinalStatus(dto.Approval_id, Status.REJECTED);
                     actResponceDto.FinalStatus = Status.REJECTED;
                     actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                 }
-            }
+             }
             if (dto.ApprovalType.Equals(ApprovalType.SEQUENTIAL))
             {
                 int acceptedCount = 0;
-                recipients.ForEach(r =>
+                recipients.ForEach(async r =>
                 {
                     if (r.status.Equals(Status.REJECTED))
                     {
                         //update final status and return
-                        UpdateFinalStatus(dto.Approval_id, Status.REJECTED);
+                        await UpdateFinalStatus(dto.Approval_id, Status.REJECTED);
                         actResponceDto.FinalStatus = Status.REJECTED;
                         actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
@@ -231,23 +245,25 @@ namespace IKS_Approval_App.Services
                     {
                         acceptedCount++;
                     }
-                   
-
                 });
 
-                if(acceptedCount == recipients.Count)
+                if (acceptedCount == recipients.Count)
                 {
-                    UpdateFinalStatus(dto.Approval_id, Status.ACCEPTED);
+                    await UpdateFinalStatus(dto.Approval_id, Status.ACCEPTED);
                     actResponceDto.FinalStatus = Status.ACCEPTED;
                     actResponceDto.ApprovedTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                 }
+
+              
             }
 
+            actResponceDto.ApprovalId = dto.Approval_id;
+            actResponceDto.Recipient = recipients;
 
-                return await Task.FromResult(actResponceDto);
+            return await Task.FromResult(actResponceDto);
         }
 
-        public int UpdateFinalStatus(int approvalid,Status s)
+        public Task<int> UpdateFinalStatus(int approvalid,Status s)
         {
             StringBuilder qry = new StringBuilder("CALL Final_Status_update(");
             qry.Append(approvalid + ",");
@@ -255,7 +271,7 @@ namespace IKS_Approval_App.Services
             qry.Append("'" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "');");
             var update = ApprovalDB.ExecuteNonQuery(qry.ToString());
 
-            return update;
+            return Task.FromResult(update);
         }
         
         public async Task<List<Recipient>> GetRecipientsForApproval(int approvalId)
@@ -380,6 +396,34 @@ namespace IKS_Approval_App.Services
                 title.Add(dto);
             }
             return title;
+        }
+
+        public int updateStatusToPending(int approvalId,int seqNo,Status status)
+        {
+            string qry = "CALL Update_Status_To_Pending(" + approvalId + "," + seqNo +",'"+ status.ToString()+"');";
+            var update = ApprovalDB.ExecuteNonQuery(qry);
+            return update;
+        }
+
+        public int DeleteApproval(int approvalId)
+        {
+            return ApprovalDB.ExecuteNonQuery("CALL Delete_Approval('" + approvalId + "');");
+           
+        }
+
+        public List<ReminderDto> GetReminders()
+        {
+            List<ReminderDto> reminder = new List<ReminderDto>();
+            var dataTable = ApprovalDB.ExecuteDataTable("CALL Reminder();");
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                ReminderDto dto = new ReminderDto();
+                dto.ApprovalId = int.Parse(dr["approval_id"].ToString());
+                dto.Title = dr["approval_name"].ToString();
+                dto.Email = dr["recipient_email"].ToString();
+                reminder.Add(dto);
+            }
+            return reminder;
         }
 
 

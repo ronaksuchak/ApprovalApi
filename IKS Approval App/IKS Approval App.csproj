@@ -177,6 +177,7 @@
     <Compile Include="Models\CountDto.cs" />
     <Compile Include="Models\HomeDto.cs" />
     <Compile Include="Models\Recipient.cs" />
+    <Compile Include="Models\ReminderDto.cs" />
     <Compile Include="Models\Status.cs" />
     <Compile Include="Models\Type.cs" />
     <Compile Include="Services\ApprovalService.cs" />

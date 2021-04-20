@@ -22,31 +22,58 @@ namespace IKS_Approval_App.Controllers
         }
 
         // GET api/approval
-       /* [ActionName("list")]
-        public List<Approval> Get()
-        {
-            ApprovalService service = new ApprovalService();
-            return service.GetApprovals();
+        /* [ActionName("list")]
+         public List<Approval> Get()
+         {
+             ApprovalService service = new ApprovalService();
+             return service.GetApprovals();
 
-        }*/
+         }*/
         //{"email":""}
         //GET api/approval/recived
-       /*[ActionName("recived")]
-      
-        public List<HomeDto> GetRecivedApprovalTitle(string email)
+        /*[ActionName("recived")]
+
+         public List<HomeDto> GetRecivedApprovalTitle(string email)
+         {
+             ApprovalService service = new ApprovalService();
+             return service.GetAllApprovalTitleRecived(email.Trim());
+
+         }
+
+         [ActionName("sent")]
+         public List<HomeDto> GetSentApprovalTitle(string email)
+         {
+             ApprovalService service = new ApprovalService();
+             return service.GetAllApprovalTitleSent(email.Trim());
+
+         }*/
+
+        [ActionName("deleteApproval")]
+        [HttpDelete]
+        public HttpResponseMessage DeleteApproval(int approvalId)
         {
             ApprovalService service = new ApprovalService();
-            return service.GetAllApprovalTitleRecived(email.Trim());
 
+            var data = service.DeleteApproval(approvalId);
+
+            if(data > 0)
+            {
+                return this.Request.CreateResponse(HttpStatusCode.OK);
+            }
+            else
+            {
+                return this.Request.CreateResponse(HttpStatusCode.BadRequest);
+            }
         }
 
-        [ActionName("sent")]
-        public List<HomeDto> GetSentApprovalTitle(string email)
+        [ActionName("reminder")]
+        public List<ReminderDto> Reminder()
         {
             ApprovalService service = new ApprovalService();
-            return service.GetAllApprovalTitleSent(email.Trim());
+            return service.GetReminders();
+        }
 
-        }*/
+
         [HttpPost]
         [ActionName("act")]
         public async Task<HttpResponseMessage> UpdateStatus(ActDto dto)
@@ -64,6 +91,7 @@ namespace IKS_Approval_App.Controllers
           
 
         }
+        
         // GET api/approval/5
         [ActionName("list")]
         public Approval Get(int id)

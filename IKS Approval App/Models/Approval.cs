@@ -64,14 +64,12 @@ namespace IKS_Approval_App.Models
                 return false;
             if (DueDate.Equals("") || DueDate == null)
                 return false;
-            if (Comment.Equals("") || Comment == null)
-                return false;
+           
             if (! (Status.IsDefined(typeof(Status),FinalStatus)))
                 return false;
             if (! (ApprovalType.IsDefined(typeof(ApprovalType),Type)))
                 return false;
-            if (Attachment == null)
-                return false;
+            
             if ( Recipient == null)
                 return false;
             
